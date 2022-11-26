@@ -1,16 +1,46 @@
 #pragma once
 #include "Vector.h"
+#include <vector>
+#include <stdexcept>
+#include <iostream>
 
 
-class Matrix
-{
+class Matrix {
+    std::vector<std::vector<double>> internal_storage;
+
+    void verify_size();
 
 public:
-    std::vector<Vector> matrix;
-    Matrix(std::vector<Vector> matrix);
-    const Vector operator[](const int index);
-    int height;
-    int length;
-};
 
-Vector operator*(Matrix matrix, Vector vector);
+    // Public constructors.
+    Matrix(std::initializer_list< std::initializer_list<double>> matrix);
+    Matrix(std::vector<std::vector<double>> matrix);
+    Matrix(const Vector& V);
+    Matrix(const size_t& size);
+    Matrix(const size_t& x, const size_t& y);
+    
+    // Methods.
+    size_t get_col_count() const noexcept;
+    size_t get_row_count() const noexcept;
+    std::vector<std::vector<double>> get_internal_storage() const noexcept;
+    Matrix transpose() const;
+    void print() const noexcept;
+    double trace() const;
+    static Matrix identity(const size_t& num) noexcept;
+
+    // Iterators. Templates (auto) in header only.
+    auto begin() const {
+        return internal_storage.begin();
+    }
+
+    auto end() const {
+        return internal_storage.end();
+    }
+
+    // Operator overloading.
+    std::vector<double>& operator[](const size_t& index);
+    bool operator==(const Matrix& M) const noexcept;
+    bool operator==(const Vector& V) const noexcept;
+    friend Matrix operator*(const Matrix& M, const Vector& V);
+    friend Matrix operator*(const Matrix& M0, const Matrix& M1);
+};

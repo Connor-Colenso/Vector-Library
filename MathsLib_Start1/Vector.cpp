@@ -1,235 +1,149 @@
 #pragma once
 
-//------------------------------------------------------------------------------
-// include files
-#include <cmath>
-#include <vector>
-#include <stdexcept>
-
 // Definition of our vector class:
 
 // This is essentially a wrapper around std::vector that allows us to perform additional 
-// calculations as if it was a mathematical vector.
+// calculations as if it was a mathematical vector. Similar to valarray.
 
 #include "Vector.h"
 
-// Constructor for the Vector class.
-Vector::Vector(std::vector<double> input_vector) : input_vector( input_vector ) { };
+// Constructors for the Vector class.
+Vector::Vector(std::vector<double> input_vector) : internal_vector{ input_vector } { };
+Vector::Vector(std::initializer_list<double> input_vector) : internal_vector{ input_vector } { }
+Vector::Vector(size_t n) : internal_vector(std::vector<double>(n, 0.0)) { }
 
 // Calculates the Euclidean distance of the vector from the origin.
-double Vector::length() const
-{
-	// Dummy variable used for counting.
-	double tmp_sum = 0;
-
-	// Iterate over each value in the vector and sum the squared values.
-	for (int i = 0; i < input_vector.size(); i++)
-	{
-		tmp_sum += pow(input_vector[i], 2);
-	}
-	return sqrt(tmp_sum);
+double Vector::euclidean_length() const {
+	return sqrt((*this).dot_product(*this));
 }
 
 // Checks if the vector is approximately equal to the zero vector, useful helper function. Returns either true or false.
-bool Vector::is_zero(const double& tolerance) const
-{
-	for (int i = 0; i < input_vector.size(); i++)
-	{
+// Default value of 0 for tolerance if no value is provided.
+bool Vector::is_zero(const double& tolerance) const noexcept {
+	for (const auto& i : internal_vector) {
 		// If any value but 0 is found then it returns false.
-		if (abs(input_vector[i]) > tolerance) {
+		if (abs(i) > tolerance) {
 			return false;
 		};
 	}
 	return true;
 }
 
-// Returns a normalised vector object, that 
-Vector Vector::normalise()
-{
-	// Derefence the this pointer and use the fact that we have operator 
-	// overloaded Vector * double to greatly simplify this code.
-	double vector_length = this->length();
-	return (*this) * (1 / vector_length);
+// Return normalised Vector object that has length of 1.
+Vector Vector::normalise() {
+	return Vector(internal_vector) / this->euclidean_length();
 }
 
 // Calculate dot product between two vectors.
-double Vector::dot_product(Vector vec)
+double Vector::dot_product(const Vector& vec) const
 {
 	// Check that the sizes of the vectors are equal.
-	if (this->size() != vec.size())
-	{
+	if (this->size() != vec.size()) {
 		throw std::invalid_argument("Vectors used for dot product are not the same size.");
 	}
 
-	std::vector<double> tmp_array;
-	double tmp_sum = 0;
-
-	for (int i = 0; i < input_vector.size(); i++)
-	{
-		tmp_sum += input_vector[i] * vec.input_vector[i];
-	}
-	return tmp_sum;
+	return std::inner_product(vec.internal_vector.begin(), vec.internal_vector.end(), internal_vector.begin(), 0.0);
 }
 
 // Returns the dimensionality of the vector.
-int Vector::size() const
-{
-	return (int) input_vector.size();
+size_t Vector::size() const {
+	return internal_vector.size();
 }
 
 // Calculate a cross product, only works with 3D vectors.
-Vector Vector::cross_product(Vector vec) const
-{
+Vector Vector::cross_product(const Vector& vec) const {
 
-	if ((input_vector.size() != 3) || (vec.size() != 3))
-	{
+	if ((internal_vector.size() != 3) || (vec.size() != 3)) {
 		throw std::invalid_argument("Vectors have invalid dimensions. Only three dimensional vectors can utilise the cross product operator.");
 	}
 
-	std::vector<double> tmp_array = {};
+	std::vector<double> tmp_array;
 
-	tmp_array.push_back((input_vector[1] * vec[2] - input_vector[2] * vec[1]));
-	tmp_array.push_back((input_vector[2] * vec[0] - input_vector[0] * vec[2]));
-	tmp_array.push_back((input_vector[0] * vec[1] - input_vector[1] * vec[0]));
+	tmp_array.push_back((internal_vector[1] * vec[2] - internal_vector[2] * vec[1]));
+	tmp_array.push_back((internal_vector[2] * vec[0] - internal_vector[0] * vec[2]));
+	tmp_array.push_back((internal_vector[0] * vec[1] - internal_vector[1] * vec[0]));
 
-	Vector new_vec(tmp_array);
-
-	return new_vec;
+	return Vector(tmp_array);
 
 }
 
-double Vector::distance(Vector vec) const
-{
-	if (vec.size() != this->size())
-	{
+double Vector::distance(const Vector& vec) const {
+	if (vec.size() != this->size()) {
 		throw std::invalid_argument("Vectors have invalid dimensions.");
 	}
 
-	double tmp_sum = 0;
+	const Vector tmp_vec = Vector(internal_vector) - vec;
 
-	for (int i = 0; i < vec.size(); i++)
-	{
-		tmp_sum += pow(this->input_vector[i] - vec[i], 2);
+	return tmp_vec.euclidean_length();
+}
+
+void Vector::print() const noexcept {
+
+	for (const auto& i : internal_vector) {
+		std::cout << i << " ";
 	}
-
-	return sqrt(tmp_sum);
-}
-
-double Vector::operator[](int i) const
-{
-	return input_vector[i];
+	std::cout << std::endl << std::endl;
 }
 
 
-Vector Vector::operator+(Vector& vec2) const
-{
-	if (vec2.size() != this->size())
-	{
+std::vector<double> Vector::get_internal_storage() const noexcept {
+	return internal_vector;
+}
+
+double Vector::operator[](const int& i) const {
+	return internal_vector[i];
+}
+
+
+Vector Vector::operator+(const Vector& vec) const {
+	if (vec.size() != this->size()) {
 		throw std::invalid_argument("Vectors have invalid dimensions.");
 	}
 
-	std::vector<double> tmp_array;
+	// Add the two vectors together and instantiate a new Vector object to return.
+	std::vector<double> result = internal_vector;
+	std::transform(result.begin(), result.end(), vec.internal_vector.begin(), result.begin(), std::plus<>());
 
-	for (int i = 0; i < input_vector.size(); i++)
-	{
-		tmp_array.push_back(input_vector[i] + vec2[i]);
-	}
-
-	return Vector(tmp_array);
+	return Vector(result);
 }
 
-bool Vector::operator==(const Vector& vec2)
-{
-	if (vec2.size() != input_vector.size())
-	{
+bool Vector::operator==(const Vector& vec) const {
+	if (vec.size() != internal_vector.size()) {
 		throw std::invalid_argument("Vectors have invalid dimensions.");
 	}
 
-	for (int i = 0; i < input_vector.size(); i++)
-	{
-		if (input_vector[i] != vec2[i]) 
-		{ 
-			return false; 
-		}
-	}
-
-	return true;
+	return internal_vector == vec.internal_vector;
 }
 
-
-
-Vector Vector::operator-(Vector& vec2) const
-{
-	if (vec2.size() != this->size())
-	{
+Vector Vector::operator-(const Vector& vec) const {
+	if (vec.size() != this->size()) {
 		throw std::invalid_argument("Vectors have invalid dimensions.");
 	}
 
-	std::vector<double> tmp_array;
+	// Subtract the two vectors together and instantiate a new Vector object to return.
+	std::vector<double> result = internal_vector;
+	std::transform(result.begin(), result.end(), vec.internal_vector.begin(), result.begin(), std::minus<>());
 
-	for (int i = 0; i < input_vector.size(); i++)
-	{
-		tmp_array.push_back(input_vector[i] - vec2[i]);
-	}
-
-	return Vector(tmp_array);
+	return Vector(result);
 }
 
-Vector Vector::operator*(Vector& vec2) const
-{
-	if (vec2.size() != this->size())
-	{
-		throw std::invalid_argument("Vectors have invalid dimensions.");
-	}
+Vector Vector::operator*(const double& number) const noexcept {
 
-	std::vector<double> tmp_array;
+	std::vector<double> result = internal_vector;
+	std::transform(result.begin(), result.end(), result.begin(), [number](const auto& i) { return number * i;  });
 
-	for (int i = 0; i < input_vector.size(); i++)
-	{
-		tmp_array.push_back(input_vector[i] * vec2[i]);
-	}
-
-	return Vector(tmp_array);
+	return Vector(result);
 }
 
-
-Vector Vector::operator*(const double& number) const
-{
-	std::vector<double> tmp_array;
-
-	for (int i = 0; i < input_vector.size(); i++)
-	{
-		tmp_array.push_back(number * input_vector[i]);
-	}
-
-	return Vector(tmp_array);
+Vector Vector::operator/(const double& number) const noexcept {
+	return Vector(internal_vector) * (1.0 / number);
 }
 
-Vector Vector::operator+(const double& number) const
-{
-	std::vector<double> tmp_array;
-
-	for (int i = 0; i < input_vector.size(); i++)
-	{
-		tmp_array.push_back(number + input_vector[i]);
-	}
-
-	return Vector(tmp_array);
+Vector Vector::operator-() const noexcept {
+	return Vector(internal_vector) * -1;
 }
 
-Vector Vector::operator-() const
-{
-	Vector vec(input_vector);
-	return vec * -1;
-}
-
-// Helper functions
-Vector operator*(const double& number, Vector vec)
-{
+// Friend method for operator overloading.
+Vector operator*(const double& number, Vector vec) noexcept {
 	return vec * number;
-}
-
-Vector operator+(const double& number, Vector vec)
-{
-	return vec + number;
 }
