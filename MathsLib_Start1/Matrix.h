@@ -47,5 +47,5 @@ public:
     friend Matrix operator*(const Matrix& M, const double& num) noexcept;
     friend Matrix operator*(const double& num, const Matrix& M) noexcept;
     friend Matrix operator/(const Matrix& M, const double& num) noexcept;
-
+    
 };
