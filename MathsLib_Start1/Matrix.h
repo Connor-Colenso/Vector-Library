@@ -15,9 +15,9 @@ public:
     // Public constructors.
     Matrix(std::initializer_list< std::initializer_list<double>> matrix);
     Matrix(std::vector<std::vector<double>> matrix);
-    Matrix(const Vector& V);
-    Matrix(const size_t& size);
-    Matrix(const size_t& x, const size_t& y);
+    explicit Matrix(const Vector& V);
+    explicit Matrix(const size_t& size);
+    explicit Matrix(const size_t& x, const size_t& y);
     
     // Methods.
     size_t get_col_count() const noexcept;
@@ -41,6 +41,11 @@ public:
     std::vector<double>& operator[](const size_t& index);
     bool operator==(const Matrix& M) const noexcept;
     bool operator==(const Vector& V) const noexcept;
+    Matrix operator-() const noexcept;
     friend Matrix operator*(const Matrix& M, const Vector& V);
     friend Matrix operator*(const Matrix& M0, const Matrix& M1);
+    friend Matrix operator*(const Matrix& M, const double& num) noexcept;
+    friend Matrix operator*(const double& num, const Matrix& M) noexcept;
+    friend Matrix operator/(const Matrix& M, const double& num) noexcept;
+
 };

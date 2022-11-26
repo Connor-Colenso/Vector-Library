@@ -22,14 +22,14 @@ Matrix::Matrix(const Vector& V) {
 Matrix::Matrix(const size_t& size) : internal_storage{
 	std::vector<std::vector<double>>{
 	std::vector(size, std::vector<double>(size, 0.0))
-} } { 
+} } {
 	verify_size();
 }
 
 Matrix::Matrix(const size_t& x, const size_t& y) : internal_storage{
 	std::vector<std::vector<double>>{
 	std::vector(y, std::vector<double>(x, 0.0))
-} } { 
+} } {
 	verify_size();
 }
 
@@ -89,7 +89,7 @@ void Matrix::print() const noexcept {
 }
 
 double Matrix::trace() const {
-	
+
 	if (get_col_count() != get_row_count()) {
 		throw std::invalid_argument("Trace of a matrix can only be obtained if the matrix is square.");
 	}
@@ -99,7 +99,7 @@ double Matrix::trace() const {
 	for (int i = 0; i < get_col_count(); i++) {
 		sum += internal_storage[i][i];
 	}
-	
+
 	return sum;
 }
 
@@ -120,11 +120,29 @@ Matrix operator*(const Matrix& M, const Vector& V) {
 	return M * Matrix(V);
 }
 
+Matrix operator*(const Matrix& _M, const double& num) noexcept {
+
+	Matrix M(_M);
+
+	for (int y = 0; y < M.get_row_count(); y++) {
+		for (int x = 0; x < M.get_col_count(); x++) {
+			M[y][x] *= num;
+		}
+	}
+
+	return M;
+}
+
+Matrix operator*(const double& num, const Matrix& M) noexcept {
+	return M * num;
+}
+
+Matrix Matrix::operator-() const noexcept {
+	return Matrix(internal_storage) * -1;
+}
+
 // Friend operator overload since Matrix * Matrix is not commutative under multplication.
 Matrix operator*(const Matrix& M0, const Matrix& M1) {
-
-	// mxp * pxn = mxn
-	// 3x2 * 2x3 = 2X2
 
 	if (M0.get_col_count() != M1.get_row_count()) {
 		throw std::invalid_argument("Matrix multiplication must have valid dimensions.");
@@ -145,3 +163,8 @@ Matrix operator*(const Matrix& M0, const Matrix& M1) {
 
 	return M.transpose();
 }
+
+Matrix operator/(const Matrix& M, const double& num) noexcept {
+	return M * (1.0 / num);
+}
+

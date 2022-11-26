@@ -411,7 +411,7 @@ TEST(Matrix, identity) {
 		{10,  77, 45},
 		{13,  60, 44},
 		{21, 117, 85}
-	});
+		});
 
 	EXPECT_EQ(Matrix::identity(3) * M, M);
 	EXPECT_EQ(M * Matrix::identity(3), M);
@@ -462,14 +462,14 @@ TEST(Matrix, matrix_multiply_matrix_operator) {
 		{10,  77, 45},
 		{13,  60, 44},
 		{21, 117, 85}
-	});
+		});
 
 	Matrix solution_1({
 		{39, 31, 27, 14},
 		{56, 50, 40, 24},
 		{55, 46, 41, 24},
 		{90, 73, 55, 25}
-	});
+		});
 
 	EXPECT_THROW(M0 * M0, std::invalid_argument);
 	EXPECT_THROW(M1 * M1, std::invalid_argument);
@@ -477,7 +477,7 @@ TEST(Matrix, matrix_multiply_matrix_operator) {
 	EXPECT_EQ(M0 * M1, solution_0);
 	EXPECT_EQ(M1 * M0, solution_1);
 
-	EXPECT_EQ(Matrix({{1}}) * Matrix({{1}}), Matrix({{1}}));
+	EXPECT_EQ(Matrix({ {1} }) * Matrix({ {1} }), Matrix({ {1} }));
 }
 
 TEST(Matrix, trace) {
@@ -485,17 +485,84 @@ TEST(Matrix, trace) {
 		{ 1, 3, 4, 5 },
 		{ 6, 5, 3, 1 },
 		{ 9, 7, 7, 4 }
-	});
+		});
 
 	Matrix M1({
 		{10,  77, 45},
 		{13,  60, 44},
 		{21, 117, 85}
-	});
+		});
 
 	EXPECT_THROW(M0.trace(), std::invalid_argument);
 	EXPECT_EQ(M1.trace(), 155);
 	EXPECT_EQ(Matrix::identity(103).trace(), 103);
+}
+
+TEST(Matrix, operator_constant_multiply_matrix) {
+	Matrix M0({
+		{ 1, 2, 4, 4 },
+		{ 0, 1, 3, 3 },
+		{ 4, 2, 2, 4 }
+		});
+
+	Matrix M0_A({
+		{ 2, 4, 8, 8 },
+		{ 0, 2, 6, 6 },
+		{ 8, 4, 4, 8 }
+		});
+
+	Matrix M1({
+		{1, 4, 7},
+		{2, 5, 8},
+		{3, 6, 9}
+		});
+
+	Matrix M1_A({
+		{2,  8, 14},
+		{4, 10, 16},
+		{6, 12, 18}
+		});
+
+	EXPECT_EQ(M0 * 2, M0_A);
+	EXPECT_EQ(2 * M0, M0_A);
+	EXPECT_EQ(M1 * 2, M1_A);
+	EXPECT_EQ(2 * M1, M1_A);
+}
+
+TEST(Matrix, unary_negation_operator) {
+	Matrix M = Matrix::identity(15);
+	EXPECT_EQ((-M).trace(), -15);
+}
+
+TEST(Matrix, matrix_divided_constant_operator) {
+	Matrix M0({
+	{ 1, 2, 4, 4 },
+	{ 0, 1, 3, 3 },
+	{ 4, 2, 2, 4 }
+		});
+
+	Matrix M0_A({
+		{ 2, 4, 8, 8 },
+		{ 0, 2, 6, 6 },
+		{ 8, 4, 4, 8 }
+		});
+
+	EXPECT_EQ(M0_A / 2, M0);
+
+	Matrix M1({
+	{1, 4, 7},
+	{2, 5, 8},
+	{3, 6, 9}
+		});
+
+	Matrix M1_A({
+		{2,  8, 14},
+		{4, 10, 16},
+		{6, 12, 18}
+		});
+
+	EXPECT_EQ(M1_A / 2, M1);
+
 }
 
 

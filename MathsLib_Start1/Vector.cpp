@@ -64,7 +64,6 @@ Vector Vector::cross_product(const Vector& vec) const {
 	tmp_array.push_back((internal_vector[0] * vec[1] - internal_vector[1] * vec[0]));
 
 	return Vector(tmp_array);
-
 }
 
 double Vector::distance(const Vector& vec) const {
