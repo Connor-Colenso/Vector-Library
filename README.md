@@ -1,5 +1,5 @@
 # Vector-Library
-Library to support vector, ray and matrix objects with 28 unit tests to ensure functionality.
+Library to support vector, ray and matrix objects with full unit test coverage to ensure functionality.
 
 Supports the following:
 
