@@ -37,7 +37,8 @@ public:
 	}
 
 	// Operator overloads.
-	double operator[](const int& i) const;
+	double& operator[](const size_t& index);
+	const double& operator[](const size_t& index) const;
 	bool operator==(const Vector& _vec) const;
 	Vector operator+(const Vector& _vec) const;
 	Vector operator-(const Vector& _vec) const;

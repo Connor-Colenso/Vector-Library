@@ -90,10 +90,13 @@ std::vector<double> Vector::get_internal_storage() const noexcept {
 	return internal_vector;
 }
 
-double Vector::operator[](const int& i) const {
-	return internal_vector[i];
+double& Vector::operator[](const size_t& index) {
+	return internal_vector[index];
 }
 
+const double& Vector::operator[](const size_t& index) const {
+	return internal_vector[index];
+}
 
 Vector Vector::operator+(const Vector& vec) const {
 	if (vec.size() != this->size()) {
